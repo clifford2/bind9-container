@@ -1,0 +1,20 @@
+version = 1
+
+[[annotations]]
+path = ["README.md"]
+precedence = "closest"
+SPDX-FileCopyrightText = "© 2025 Clifford Weinmann <https://www.cliffordweinmann.com/>"
+SPDX-License-Identifier = "MIT-0"
+
+[[annotations]]
+path = ["Dockerfile"]
+precedence = "closest"
+SPDX-FileCopyrightText = "© BIND 9 Developers <bind9-dev@isc.org>"
+SPDX-FileContributor = "Clifford Weinmann <https://www.cliffordweinmann.com/>"
+SPDX-License-Identifier = "MPL-2.0"
+
+[[annotations]]
+path = ["named.conf", "isc-keyblock.asc"]
+precedence = "closest"
+SPDX-FileCopyrightText = "© BIND 9 Developers <bind9-dev@isc.org>"
+SPDX-License-Identifier = "MPL-2.0"

@@ -8,16 +8,40 @@ ARG UID=53
 ARG GID=53
 
 # Create common base
-FROM docker.io/library/alpine:3.22.2 AS base
+FROM docker.io/library/alpine:3.23.0 AS base
+
 LABEL org.opencontainers.image.authors="BIND 9 Developers <bind9-dev@isc.org>"
-LABEL org.opencontainers.image.licenses="MPL-2.0"
 LABEL org.opencontainers.image.description="BIND (Berkeley Internet Name Domain)"
-LABEL org.opencontainers.image.source="https://gitlab.isc.org/isc-projects/bind9"
+LABEL org.opencontainers.image.licenses="MPL-2.0"
+LABEL org.opencontainers.image.source="https://github.com/clifford2/bind9-container"
+LABEL org.opencontainers.image.title="bind9"
+LABEL org.opencontainers.image.url="https://github.com/clifford2/bind9-container"
 
 ENV LC_ALL=C.UTF-8
 
+# BUILD_DATE should break old caches of the update & upgrade layers
+ARG BUILD_DATE
+RUN echo "${BUILD_DATE}"
 RUN apk --no-cache update
 RUN apk --no-cache upgrade
+
+RUN apk --no-cache add \
+        fstrm \
+        jemalloc \
+        json-c \
+        krb5-libs \
+        libcap2 \
+        libidn2 \
+        libmaxminddb-libs \
+        libuv \
+        libxml2 \
+        lmdb \
+        nghttp2-libs \
+        procps \
+        protobuf-c \
+        tzdata \
+        userspace-rcu
+
 
 # Build BIND 9
 FROM base AS builder
@@ -98,23 +122,6 @@ RUN cd /usr/src && \
 # Create final image
 FROM base
 
-RUN apk --no-cache add \
-        fstrm \
-        jemalloc \
-        json-c \
-        krb5-libs \
-        libcap2 \
-        libidn2 \
-        libmaxminddb-libs \
-        libuv \
-        libxml2 \
-        lmdb \
-        nghttp2-libs \
-        procps \
-        protobuf-c \
-        tzdata \
-        userspace-rcu
-
 # Copy binaries from previous stage
 COPY --from=builder /dist/ /
 
@@ -144,8 +151,14 @@ VOLUME ["/etc/bind", "/var/cache/bind", "/var/lib/bind", "/var/log"]
 
 EXPOSE 53/udp 53/tcp 953/tcp 853/tcp 443/tcp
 
-ENTRYPOINT ["/usr/sbin/named", "-u", "bind"]
+COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["-f", "-c", "/etc/bind/named.conf", "-L", "/var/log/bind/default.log"]
 
 ARG IMAGE_VERSION
 LABEL org.opencontainers.image.version="${IMAGE_VERSION}"
+ARG GIT_REVISION
+LABEL org.opencontainers.image.revision="${GIT_REVISION}"
+ARG BUILD_TIME
+LABEL org.opencontainers.image.created="${BUILD_TIME}"

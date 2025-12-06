@@ -1,14 +1,16 @@
-# Internet Systems Consortium BIND 9 DNS Server
+# ISC BIND 9 DNS Server
 
-ISC [BIND](https://www.isc.org/bind/) (Berkeley Internet Name Domain) container image.
+Internet Systems Consortium [BIND](https://www.isc.org/bind/) (Berkeley
+Internet Name Domain) container image.
 
-This code is based on the [ISC](https://www.isc.org/)'s Dockerfile at
-[gitlab.isc.org/isc-projects/bind9-docker](https://gitlab.isc.org/isc-projects/bind9-docker/-/tree/v9.20).
-
-The [ISC](https://www.isc.org/) also build these images, and make them available at
+The [ISC](https://www.isc.org/) publishes official container images at
 [`docker.io/internetsystemsconsortium/bind9`](https://hub.docker.com/r/internetsystemsconsortium/bind9).
+These images are tagged with major and minor version numbers only.
 
-Their images are tagged with major and minor versions only.
+I prefer *reproducable deployments*, which require *immutable tags*.
+This repository exists only to produce images with immutable tags.
 
-I'm rebuilding the image *only* so I can tag them with patch version
-numbers too, and manage which exact version I'm running.
+My code is based on the [ISC](https://www.isc.org/)'s `Dockerfile` at
+[gitlab.isc.org/isc-projects/bind9-docker](https://gitlab.isc.org/isc-projects/bind9-docker/-/tree/v9.20),
+and there are no material differences between their images and mine
+besides the tags.

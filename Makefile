@@ -29,10 +29,16 @@ endif
 IMAGE_NAME := bind9
 BIND9_MINOR_VER := 9.20
 BIND9_PATCH_VER := 16
-IMAGE_RELEASE := 2
+BUILD_NR := 1
 BIND9_VERSION := $(BIND9_MINOR_VER).$(BIND9_PATCH_VER)
 BIND9_CHECKSUM := 03ffcc7a4fcb7c39b82b34be1ba2b59f6c191bc795c5935530d5ebe630a352d6
+
+# Add date into release version to distinguish between image differences resulting from `apk update` & `apk upgrade` steps
+IMAGE_RELEASE := $(shell TZ=UTC date '+%Y%m%d').$(BUILD_NR)
 IMAGE_VERSION := $(BIND9_VERSION)-$(IMAGE_RELEASE)
+GIT_REVISION := $(shell git rev-parse @)
+BUILD_DATE := $(shell TZ=UTC date '+%Y-%m-%d')
+BUILD_TIME := $(shell TZ=UTC date '+%Y-%m-%dT%H:%M:%SZ')
 
 # REGISTRY_NAME := ghcr.io
 # REGISTRY_USER := clifford2
@@ -49,11 +55,11 @@ help:
 
 
 .PHONY: build
-build:
-	$(CONTAINER_ENGINE) build --build-arg BIND9_VERSION=$(BIND9_VERSION) --build-arg IMAGE_VERSION=$(IMAGE_VERSION) --build-arg BIND9_CHECKSUM=$(BIND9_CHECKSUM) -t $(IMGBASENAME):$(IMAGE_VERSION) .
+build: .check-depends
+	$(CONTAINER_ENGINE) build --build-arg BIND9_VERSION=$(BIND9_VERSION) --build-arg IMAGE_VERSION=$(IMAGE_VERSION) --build-arg BIND9_CHECKSUM=$(BIND9_CHECKSUM) --build-arg GIT_REVISION=$(GIT_REVISION) --build-arg BUILD_DATE=$(BUILD_DATE) --build-arg BUILD_TIME=$(BUILD_TIME) -t $(IMGBASENAME):$(IMAGE_VERSION) .
 
 .PHONY: tag
-tag:
+tag: .check-depends
 	$(CONTAINER_ENGINE) tag $(IMGBASENAME):$(IMAGE_VERSION) $(IMGRELNAME):$(IMAGE_VERSION)
 	$(CONTAINER_ENGINE) tag $(IMGBASENAME):$(IMAGE_VERSION) $(IMGRELNAME):$(BIND9_VERSION)
 	$(CONTAINER_ENGINE) tag $(IMGBASENAME):$(IMAGE_VERSION) $(IMGRELNAME):$(BIND9_MINOR_VER)
@@ -67,3 +73,27 @@ push: tag
 
 .PHONY: all
 all: build push
+
+# git tag with current APP_VERSION
+.PHONY: .git-tag
+.git-tag: .check-git-deps
+	@git tag -m "Version $(IMAGE_VERSION)" $(IMAGE_VERSION)
+
+# git push
+.PHONY: .git-push
+.git-push: .check-git-deps
+	@git push --follow-tags
+
+# git tag & push
+.PHONY: git-tag-push
+git-tag-push: .git-tag .git-push
+
+# Verify that we have git installed
+.PHONY: .check-git-deps
+.check-git-deps:
+	command -v git
+
+# Verify that we have all required dependencies installed
+.PHONY: .check-depends
+.check-depends:
+	command -v podman || command -v docker

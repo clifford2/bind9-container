@@ -34,7 +34,7 @@ BIND9_VERSION := $(BIND9_MINOR_VER).$(BIND9_PATCH_VER)
 BIND9_CHECKSUM := 03ffcc7a4fcb7c39b82b34be1ba2b59f6c191bc795c5935530d5ebe630a352d6
 
 # Add date into release version to distinguish between image differences resulting from `apk update` & `apk upgrade` steps
-IMAGE_RELEASE := $(shell TZ=UTC date '+%Y%m%d').$(BUILD_NR)
+IMAGE_RELEASE := $(BUILD_NR).$(shell TZ=UTC date '+%Y%m%d')
 IMAGE_VERSION := $(BIND9_VERSION)-$(IMAGE_RELEASE)
 GIT_REVISION := $(shell git rev-parse @)
 BUILD_DATE := $(shell TZ=UTC date '+%Y-%m-%d')

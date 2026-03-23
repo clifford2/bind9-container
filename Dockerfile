@@ -7,8 +7,7 @@ ARG IMAGE_VERSION
 ARG UID=53
 ARG GID=53
 
-# Create common base
-FROM docker.io/library/alpine:3.23.2 AS base
+FROM docker.io/library/alpine:3.23.3 AS base
 
 LABEL org.opencontainers.image.authors="BIND 9 Developers <bind9-dev@isc.org>"
 LABEL org.opencontainers.image.description="BIND (Berkeley Internet Name Domain)"

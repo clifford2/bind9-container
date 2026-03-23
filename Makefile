@@ -19,17 +19,10 @@
 # Obtained via: <https://www.isc.org/pgpkey/>
 
 BIND9_MINOR_VER := 9.20
-BIND9_PATCH_VER := 17
+BIND9_PATCH_VER := 20
 BUILD_NR := 1
 BIND9_VERSION := $(BIND9_MINOR_VER).$(BIND9_PATCH_VER)
-BIND9_CHECKSUM := 5cc89a09da0917eb1ddf640cc07c172ff44fa9bbf3a34ada4b6a2f7ee70ff1c8
-
-# Add date into release version to distinguish between image differences resulting from `apk update` & `apk upgrade` steps
-IMAGE_RELEASE := $(BUILD_NR).$(shell TZ=UTC date '+%Y%m%d')
-IMAGE_VERSION := $(BIND9_VERSION)-$(IMAGE_RELEASE)
-GIT_REVISION := $(shell git rev-parse @)
-BUILD_DATE := $(shell TZ=UTC date '+%Y-%m-%d')
-BUILD_TIME := $(shell TZ=UTC date '+%Y-%m-%dT%H:%M:%SZ')
+BIND9_CHECKSUM := 19b8335d25305231d5eb8f7d924240d1ac97c4da7c93eaa6273503133aa6106a
 
 # Use podman or docker?
 ifeq ($(shell command -v podman 2> /dev/null),)
@@ -37,6 +30,20 @@ ifeq ($(shell command -v podman 2> /dev/null),)
 else
 	CONTAINER_ENGINE := podman
 endif
+
+IMAGE_NAME := bind9
+BIND9_MINOR_VER := 9.20
+BIND9_PATCH_VER := 20
+BUILD_NR := 1
+BIND9_VERSION := $(BIND9_MINOR_VER).$(BIND9_PATCH_VER)
+BIND9_CHECKSUM := 19b8335d25305231d5eb8f7d924240d1ac97c4da7c93eaa6273503133aa6106a
+
+# Add date into release version to distinguish between image differences resulting from `apk update` & `apk upgrade` steps
+IMAGE_RELEASE := $(BUILD_NR).$(shell TZ=UTC date '+%Y%m%d')
+IMAGE_VERSION := $(BIND9_VERSION)-$(IMAGE_RELEASE)
+GIT_REVISION := $(shell git rev-parse @)
+BUILD_DATE := $(shell TZ=UTC date '+%Y-%m-%d')
+BUILD_TIME := $(shell TZ=UTC date '+%Y-%m-%dT%H:%M:%SZ')
 
 # REGISTRY_NAME := ghcr.io
 # REGISTRY_USER := clifford2
@@ -52,6 +59,12 @@ help:
 	@echo "  push:   Tags & pushes the image ($(IMGRELNAME):$(IMAGE_VERSION))"
 
 
+# Build image for testing
+.PHONY: build-dev
+build-dev: .check-depends
+	$(CONTAINER_ENGINE) build --build-arg BIND9_VERSION=$(BIND9_VERSION) --build-arg IMAGE_VERSION=$(IMAGE_VERSION) --build-arg BIND9_CHECKSUM=$(BIND9_CHECKSUM) --build-arg GIT_REVISION=$(GIT_REVISION) --build-arg BUILD_DATE=$(BUILD_DATE) --build-arg BUILD_TIME=$(BUILD_TIME) -t $(IMGBASENAME):dev .
+
+# Build image for release
 .PHONY: build
 build: .check-depends
 	$(CONTAINER_ENGINE) build --build-arg BIND9_VERSION=$(BIND9_VERSION) --build-arg IMAGE_VERSION=$(IMAGE_VERSION) --build-arg BIND9_CHECKSUM=$(BIND9_CHECKSUM) --build-arg GIT_REVISION=$(GIT_REVISION) --build-arg BUILD_DATE=$(BUILD_DATE) --build-arg BUILD_TIME=$(BUILD_TIME) -t $(IMGBASENAME):$(IMAGE_VERSION) .

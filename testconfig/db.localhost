@@ -1,0 +1,23 @@
+;
+; BIND data file for localhost & localhost.localdomain
+; Ansible managed
+;
+$TTL	7d
+@	IN	SOA	localhost. nobody.invalid. (
+                  1		; Serial
+                 7d		; Refresh
+                 1d		; Retry
+                28d		; Expire
+                 7d )	; Negative Cache TTL
+;
+@	IN	NS	localhost.
+@	IN	A	127.0.0.1
+@	IN	AAAA	::1
+
+; No Service MX RR
+@            1800 IN MX  0 .
+@           10800 IN TXT "v=spf1 -all"
+_dmarc       1800 IN TXT "v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s"
+*._domainkey 1800 IN TXT "v=DKIM1; p="
+
+; vim: set filetype=bindzone :

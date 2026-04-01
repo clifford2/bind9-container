@@ -99,7 +99,7 @@ COPY isc-keyblock.asc /usr/src/isc-keyblock.asc
 RUN gpg-agent --daemon
 RUN gpg --import /usr/src/isc-keyblock.asc
 RUN cd /usr/src && \
-    ( echo "${BIND9_CHECKSUM}  bind-${BIND9_VERSION}.tar.xz" | sha256sum -c - ) && \
+    ( echo "${BIND9_CHECKSUM} bind-${BIND9_VERSION}.tar.xz" | sha256sum -c - ) && \
     gpg --verify /usr/src/bind-${BIND9_VERSION}.tar.xz.asc bind-${BIND9_VERSION}.tar.xz && \
     tar -xJf bind-${BIND9_VERSION}.tar.xz && \
     cd /usr/src/bind-${BIND9_VERSION} && \
@@ -152,6 +152,7 @@ EXPOSE 53/udp 53/tcp 953/tcp 853/tcp 443/tcp
 
 COPY --chmod=0755 entrypoint.sh /usr/local/bin/entrypoint.sh
 
+# entrypoint.sh runs: /usr/sbin/named -u bind "$@"
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["-f", "-c", "/etc/bind/named.conf", "-L", "/var/log/bind/default.log"]
 

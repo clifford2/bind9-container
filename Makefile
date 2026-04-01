@@ -19,10 +19,10 @@
 # Obtained via: <https://www.isc.org/pgpkey/>
 
 BIND9_MINOR_VER := 9.20
-BIND9_PATCH_VER := 20
+BIND9_PATCH_VER := 21
 BUILD_NR := 1
 BIND9_VERSION := $(BIND9_MINOR_VER).$(BIND9_PATCH_VER)
-BIND9_CHECKSUM := 19b8335d25305231d5eb8f7d924240d1ac97c4da7c93eaa6273503133aa6106a
+BIND9_CHECKSUM := 15e1b5a227d2890f7c4e823a6ea018de70ee2f3a0e859cbff3d82aad8590de03
 
 # Use podman or docker?
 ifeq ($(shell command -v podman 2> /dev/null),)
@@ -30,13 +30,6 @@ ifeq ($(shell command -v podman 2> /dev/null),)
 else
 	CONTAINER_ENGINE := podman
 endif
-
-IMAGE_NAME := bind9
-BIND9_MINOR_VER := 9.20
-BIND9_PATCH_VER := 20
-BUILD_NR := 1
-BIND9_VERSION := $(BIND9_MINOR_VER).$(BIND9_PATCH_VER)
-BIND9_CHECKSUM := 19b8335d25305231d5eb8f7d924240d1ac97c4da7c93eaa6273503133aa6106a
 
 # Add date into release version to distinguish between image differences resulting from `apk update` & `apk upgrade` steps
 IMAGE_RELEASE := $(BUILD_NR).$(shell TZ=UTC date '+%Y%m%d')
@@ -63,6 +56,16 @@ help:
 .PHONY: build-dev
 build-dev: .check-depends
 	$(CONTAINER_ENGINE) build --build-arg BIND9_VERSION=$(BIND9_VERSION) --build-arg IMAGE_VERSION=$(IMAGE_VERSION) --build-arg BIND9_CHECKSUM=$(BIND9_CHECKSUM) --build-arg GIT_REVISION=$(GIT_REVISION) --build-arg BUILD_DATE=$(BUILD_DATE) --build-arg BUILD_TIME=$(BUILD_TIME) -t $(IMGBASENAME):dev .
+
+# Test the image
+.PHONY: test-dev
+test-dev:
+	@chmod 0755 testconfig
+	@chmod 0644 testconfig/*
+	$(CONTAINER_ENGINE) run --rm -d --replace --name bind-test -v ./testconfig:/etc/bind:ro,Z $(IMGBASENAME):dev
+	$(CONTAINER_ENGINE) exec -it bind-test dig @127.0.0.1 -t A localhost
+	# $(CONTAINER_ENGINE) exec -it bind-test /usr/sbin/rndc stop
+	$(CONTAINER_ENGINE) stop bind-test
 
 # Build image for release
 .PHONY: build

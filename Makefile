@@ -63,7 +63,7 @@ test-dev:
 	@chmod 0755 testconfig
 	@chmod 0644 testconfig/*
 	$(CONTAINER_ENGINE) run --rm -d --replace --name bind-test -v ./testconfig:/etc/bind:ro,Z $(IMGBASENAME):dev
-	$(CONTAINER_ENGINE) exec -it bind-test dig @127.0.0.1 -t A localhost
+	$(CONTAINER_ENGINE) exec -it bind-test dig -p 5353 @127.0.0.1 -t A localhost
 	# $(CONTAINER_ENGINE) exec -it bind-test /usr/sbin/rndc stop
 	$(CONTAINER_ENGINE) stop bind-test
 

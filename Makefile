@@ -19,10 +19,11 @@
 # Obtained via: <https://www.isc.org/pgpkey/>
 
 BIND9_MINOR_VER := 9.20
-BIND9_PATCH_VER := 21
-BUILD_NR := 2
+BIND9_PATCH_VER := 22
+BUILD_NR := 1
 BIND9_VERSION := $(BIND9_MINOR_VER).$(BIND9_PATCH_VER)
-BIND9_CHECKSUM := 15e1b5a227d2890f7c4e823a6ea018de70ee2f3a0e859cbff3d82aad8590de03
+# From https://gitlab.isc.org/isc-projects/bind9-docker/-/blob/v9.20/Dockerfile
+BIND9_CHECKSUM := cba92ff631b949655f475fe4b54290f6860fd0070d399f2279f6437c0d383ec6
 
 # Use podman or docker?
 ifeq ($(shell command -v podman 2> /dev/null),)
@@ -117,7 +118,6 @@ git-tag-push: .git-tag .git-push
 # Download BIND 9 source code
 .PHONY: .download-src
 .download-src:
-	# From https://www.isc.org/docs/isc-keyblock.asc, via https://www.isc.org/pgpkey/
 	@test -f downloads/isc-keyblock.asc || curl --output downloads/isc-keyblock.asc https://www.isc.org/docs/isc-keyblock.asc
 	@test -f downloads/bind-${BIND9_VERSION}.tar.xz.asc || curl --output downloads/bind-${BIND9_VERSION}.tar.xz.asc https://downloads.isc.org/isc/bind9/${BIND9_VERSION}/bind-${BIND9_VERSION}.tar.xz.asc
 	@test -f downloads/bind-${BIND9_VERSION}.tar.xz || curl --output downloads/bind-${BIND9_VERSION}.tar.xz https://downloads.isc.org/isc/bind9/${BIND9_VERSION}/bind-${BIND9_VERSION}.tar.xz

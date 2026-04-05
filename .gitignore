@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: © 2025 Clifford Weinmann <https://www.cliffordweinmann.com/>
 # SPDX-License-Identifier: MIT-0
 
-Dockerfile.9.18*
-Dockerfile.9.20*
-bind-*.xz
-bind-*.xz.asc
+downloads/Dockerfile.*
+downloads/bind-*.xz
+downloads/bind-*.xz.asc

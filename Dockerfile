@@ -92,10 +92,11 @@ ARG BIND9_VERSION
 ARG BIND9_CHECKSUM
 
 RUN mkdir -p /usr/src
-ADD https://downloads.isc.org/isc/bind9/${BIND9_VERSION}/bind-${BIND9_VERSION}.tar.xz /usr/src
-ADD https://downloads.isc.org/isc/bind9/${BIND9_VERSION}/bind-${BIND9_VERSION}.tar.xz.asc /usr/src
-# From https://www.isc.org/pgpkey/
-COPY isc-keyblock.asc /usr/src/isc-keyblock.asc
+# From https://www.isc.org/docs/isc-keyblock.asc, via https://www.isc.org/pgpkey/
+COPY downloads/isc-keyblock.asc /usr/src/isc-keyblock.asc
+# From https://downloads.isc.org/isc/bind9/${BIND9_VERSION}/bind-${BIND9_VERSION}.tar.xz[.asc]
+COPY downloads/bind-${BIND9_VERSION}.tar.xz /usr/src/
+COPY downloads/bind-${BIND9_VERSION}.tar.xz.asc /usr/src/
 RUN gpg-agent --daemon
 RUN gpg --import /usr/src/isc-keyblock.asc
 RUN cd /usr/src && \

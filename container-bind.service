@@ -24,8 +24,8 @@ ExecStart=/usr/bin/podman run \
   -v /var/lib/container-bind/etc/bind:/etc/bind:ro,Z \
   -v /var/lib/container-bind/var/lib/bind:/var/lib/bind:Z \
   -v /var/lib/container-bind/var/cache/bind:/var/cache/bind:Z \
-  ghcr.io/clifford2/bind9:9.20.16-20251206.1 \
-  -f -c /etc/bind/named.conf -L /var/log/bind/default.log -4
+  -e IPV4ONLY=y \
+  ghcr.io/clifford2/bind9:9.20.21-2.20260405
 ExecStop=/usr/bin/podman stop \
   --ignore -t 10 \
   --cidfile=%t/%n.ctr-id

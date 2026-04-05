@@ -19,6 +19,16 @@ trap 'echo "Received SIGTERM; Shutting down gracefully..."; /usr/sbin/rndc stop;
 trap 'echo "Received SIGINT; Shutting down gracefully..."; /usr/sbin/rndc stop; exit 0' INT
 # DEBUG - show traps: # trap
 
+NAMED_ARGS="-u bind"
+if [ "${IPV4ONLY}" = "y" ]
+then
+	NAMED_ARGS="${NAMED_ARGS} -4"
+fi
+if [ "${IPV6ONLY}" = "y" ]
+then
+	NAMED_ARGS="${NAMED_ARGS} -6"
+fi
+
 set -x
-/usr/sbin/named -u bind "$@" &
+/usr/sbin/named ${NAMED_ARGS} "$@" &
 wait

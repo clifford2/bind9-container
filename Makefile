@@ -20,7 +20,7 @@
 
 BIND9_MINOR_VER := 9.20
 BIND9_PATCH_VER := 21
-BUILD_NR := 1
+BUILD_NR := 2
 BIND9_VERSION := $(BIND9_MINOR_VER).$(BIND9_PATCH_VER)
 BIND9_CHECKSUM := 15e1b5a227d2890f7c4e823a6ea018de70ee2f3a0e859cbff3d82aad8590de03
 
@@ -49,12 +49,12 @@ help:
 	@echo "No default target configured - please specify the desired target:"
 	@echo ""
 	@echo "  build:  Builds the image ($(IMGBASENAME):$(IMAGE_VERSION))"
-	@echo "  push:   Tags & pushes the image ($(IMGRELNAME):$(IMAGE_VERSION))"
+	@test -z "$(REPOBASE)" || echo "  push:   Tags & pushes the image ($(IMGRELNAME):$(IMAGE_VERSION))"
 
 
 # Build image for testing
 .PHONY: build-dev
-build-dev: .check-depends
+build-dev: .check-depends .download-src
 	$(CONTAINER_ENGINE) build --build-arg BIND9_VERSION=$(BIND9_VERSION) --build-arg IMAGE_VERSION=$(IMAGE_VERSION) --build-arg BIND9_CHECKSUM=$(BIND9_CHECKSUM) --build-arg GIT_REVISION=$(GIT_REVISION) --build-arg BUILD_DATE=$(BUILD_DATE) --build-arg BUILD_TIME=$(BUILD_TIME) -t $(IMGBASENAME):dev .
 
 # Test the image
@@ -62,14 +62,14 @@ build-dev: .check-depends
 test-dev:
 	@chmod 0755 testconfig
 	@chmod 0644 testconfig/*
-	$(CONTAINER_ENGINE) run --rm -d --replace --name bind-test -v ./testconfig:/etc/bind:ro,Z $(IMGBASENAME):dev
+	$(CONTAINER_ENGINE) run --rm -d --replace --name bind-test -e IPV4ONLY=y -v ./testconfig:/etc/bind:ro,Z $(IMGBASENAME):dev
 	$(CONTAINER_ENGINE) exec -it bind-test dig -p 5353 @127.0.0.1 -t A localhost
 	# $(CONTAINER_ENGINE) exec -it bind-test /usr/sbin/rndc stop
 	$(CONTAINER_ENGINE) stop bind-test
 
 # Build image for release
 .PHONY: build
-build: .check-depends
+build: .check-depends .download-src
 	$(CONTAINER_ENGINE) build --build-arg BIND9_VERSION=$(BIND9_VERSION) --build-arg IMAGE_VERSION=$(IMAGE_VERSION) --build-arg BIND9_CHECKSUM=$(BIND9_CHECKSUM) --build-arg GIT_REVISION=$(GIT_REVISION) --build-arg BUILD_DATE=$(BUILD_DATE) --build-arg BUILD_TIME=$(BUILD_TIME) -t $(IMGBASENAME):$(IMAGE_VERSION) .
 	$(CONTAINER_ENGINE) run --rm $(IMGBASENAME):$(IMAGE_VERSION) -V
 
@@ -112,3 +112,12 @@ git-tag-push: .git-tag .git-push
 .PHONY: .check-depends
 .check-depends:
 	command -v podman || command -v docker
+	command -v curl
+
+# Download BIND 9 source code
+.PHONY: .download-src
+.download-src:
+	# From https://www.isc.org/docs/isc-keyblock.asc, via https://www.isc.org/pgpkey/
+	@test -f downloads/isc-keyblock.asc || curl --output downloads/isc-keyblock.asc https://www.isc.org/docs/isc-keyblock.asc
+	@test -f downloads/bind-${BIND9_VERSION}.tar.xz.asc || curl --output downloads/bind-${BIND9_VERSION}.tar.xz.asc https://downloads.isc.org/isc/bind9/${BIND9_VERSION}/bind-${BIND9_VERSION}.tar.xz.asc
+	@test -f downloads/bind-${BIND9_VERSION}.tar.xz || curl --output downloads/bind-${BIND9_VERSION}.tar.xz https://downloads.isc.org/isc/bind9/${BIND9_VERSION}/bind-${BIND9_VERSION}.tar.xz

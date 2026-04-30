@@ -20,7 +20,7 @@
 
 BIND9_MINOR_VER := 9.20
 BIND9_PATCH_VER := 22
-BUILD_NR := 1
+BUILD_NR := 2
 BIND9_VERSION := $(BIND9_MINOR_VER).$(BIND9_PATCH_VER)
 # From https://gitlab.isc.org/isc-projects/bind9-docker/-/blob/v9.20/Dockerfile
 BIND9_CHECKSUM := cba92ff631b949655f475fe4b54290f6860fd0070d399f2279f6437c0d383ec6

@@ -147,7 +147,7 @@ RUN mkdir -p /var/log/bind && chown bind:bind /var/log/bind && chmod 755 /var/lo
 # Create PID directory
 RUN mkdir -p /run/named && chown bind:bind /run/named && chmod 755 /run/named
 
-VOLUME ["/etc/bind", "/var/cache/bind", "/var/lib/bind", "/var/log"]
+VOLUME ["/etc/bind", "/var/cache/bind", "/var/lib/bind", "/var/log/bind"]
 
 EXPOSE 53/udp 53/tcp 953/tcp 853/tcp 443/tcp
 

@@ -1,4 +1,5 @@
 # Example systemd unit file for starting bind9 container
+# Place in /etc/systemd/system/ or ~/.config/systemd/user/
 # vim: set filetype=systemd :
 
 [Unit]
@@ -15,24 +16,25 @@ TimeoutStopSec=70
 ExecStartPre=/bin/rm -f %t/%n.ctr-id
 ExecStartPre=chown -R 53:53 /var/lib/container-bind
 ExecStart=/usr/bin/podman run \
-  --cidfile=%t/%n.ctr-id \
-  --cgroups=no-conmon \
-  --sdnotify=conmon \
-  --replace -d \
-  --name bind \
-  -p 53:53/udp -p 53:53/tcp -p 853:853/tcp -p 8443:443/tcp -p 127.0.0.1:953:953/tcp \
-  -v /var/lib/container-bind/etc/bind:/etc/bind:ro,Z \
-  -v /var/lib/container-bind/var/lib/bind:/var/lib/bind:Z \
-  -v /var/lib/container-bind/var/cache/bind:/var/cache/bind:Z \
-  -e IPV4ONLY=y \
-  ghcr.io/clifford2/bind9:9.20.22-1.20260405
+	--cidfile=%t/%n.ctr-id \
+	--cgroups=no-conmon \
+	--sdnotify=conmon \
+	--replace -d \
+	--name bind \
+	-p 53:53/udp -p 53:53/tcp -p 853:853/tcp -p 8443:443/tcp -p 127.0.0.1:953:953/tcp \
+	-v /var/lib/container-bind/etc/bind:/etc/bind:ro,Z \
+	-v /var/lib/container-bind/var/lib/bind:/var/lib/bind:Z \
+	-v /var/lib/container-bind/var/cache/bind:/var/cache/bind:Z \
+	-v /var/lib/container-bind/var/log/bind:/var/log/bind:Z \
+	-e IPV4ONLY=y \
+	ghcr.io/clifford2/bind9:9.20.22-1.20260405
 ExecStop=/usr/bin/podman stop \
-  --ignore -t 10 \
-  --cidfile=%t/%n.ctr-id
+	--ignore -t 10 \
+	--cidfile=%t/%n.ctr-id
 ExecStopPost=/usr/bin/podman rm \
-  -f \
-  --ignore -t 10 \
-  --cidfile=%t/%n.ctr-id
+	-f \
+	--ignore -t 10 \
+	--cidfile=%t/%n.ctr-id
 Type=notify
 NotifyAccess=all
 

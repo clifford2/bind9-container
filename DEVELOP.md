@@ -19,6 +19,14 @@ Build the image with podman:
 make build
 ```
 
+# Publish
+
+Publish new source (fix tags, commit, tag, push) with these commands:
+
+```sh
+make git-commit-push
+```
+
 Publish the new image to GitHub Container Registry:
 
 ```sh

@@ -1,15 +1,6 @@
-# MailCatcher Container Build
+# BIND 9 Container Build
 
 This image can easily be built by either `podman` or `docker`.
-
-## Bump Versions
-
-After any change, please increment the `RELEASE_VERSION` in the `.env` file,
-and run (optional - also a dependency for `make git-push`):
-
-```sh
-make fixtags
-```
 
 ## Build Development Image
 
@@ -26,20 +17,6 @@ Build the image with podman:
 
 ```sh
 make build
-```
-
-Alternately, build with docker:
-
-```sh
-make CONTAINER_ENGINE=docker build
-```
-
-## Publish
-
-Publish new source (fix tags, commit, tag, push) with these commands:
-
-```sh
-make git-commit-push
 ```
 
 Publish the new image to GitHub Container Registry:

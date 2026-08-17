@@ -19,11 +19,11 @@
 # Obtained via: <https://www.isc.org/pgpkey/>
 
 BIND9_MINOR_VER := 9.20
-BIND9_PATCH_VER := 23
-BUILD_NR := 2
+BIND9_PATCH_VER := 26
+BUILD_NR := 1
 BIND9_VERSION := $(BIND9_MINOR_VER).$(BIND9_PATCH_VER)
 # From https://gitlab.isc.org/isc-projects/bind9-docker/-/blob/v9.20/Dockerfile
-BIND9_CHECKSUM := 5d4475aed3f9e500ef554b2b14d972bdb83d33de214a9b3be92918ea46908371
+BIND9_CHECKSUM := 55248def0f870c4c46b3de72978ea972615131516663188a4564dca1d20bf350
 
 # Use podman or docker?
 ifeq ($(shell command -v podman 2> /dev/null),)
@@ -68,7 +68,8 @@ test-dev:
 	@chmod 0755 testconfig
 	@chmod 0644 testconfig/*
 	$(CONTAINER_ENGINE) run --rm -d --replace --name bind-test -e IPV4ONLY=y -v ./testconfig:/etc/bind:ro,Z $(IMGBASENAME):dev
-	$(CONTAINER_ENGINE) exec -it bind-test dig -p 5353 @127.0.0.1 -t A localhost
+	$(CONTAINER_ENGINE) exec -it bind-test dig -p 5353 @127.0.0.1 -t A localhost.
+	# $(CONTAINER_ENGINE) exec -it bind-test dig -p 5353 @127.0.0.1 -t SOA localhost.
 	# $(CONTAINER_ENGINE) exec -it bind-test /usr/sbin/rndc stop
 	$(CONTAINER_ENGINE) stop bind-test
 

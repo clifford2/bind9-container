@@ -30,7 +30,7 @@ make git-commit-push
 Publish the new image to GitHub Container Registry:
 
 ```sh
-podman login -i clifford2 ghcr.io
+podman login -u clifford2 ghcr.io
 make REPOBASE=ghcr.io/clifford2 push
 ```
 

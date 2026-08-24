@@ -19,11 +19,11 @@
 # Obtained via: <https://www.isc.org/pgpkey/>
 
 BIND9_MINOR_VER := 9.20
-BIND9_PATCH_VER := 26
+BIND9_PATCH_VER := 27
 BUILD_NR := 1
 BIND9_VERSION := $(BIND9_MINOR_VER).$(BIND9_PATCH_VER)
 # From https://gitlab.isc.org/isc-projects/bind9-docker/-/blob/v9.20/Dockerfile
-BIND9_CHECKSUM := 55248def0f870c4c46b3de72978ea972615131516663188a4564dca1d20bf350
+BIND9_CHECKSUM := 145ab7a50b33a06d9d488b5e668c887e754f42acf8954e2b5dc7e238b080e4a0
 
 # Use podman or docker?
 ifeq ($(shell command -v podman 2> /dev/null),)

@@ -19,11 +19,11 @@
 # Obtained via: <https://www.isc.org/pgpkey/>
 
 BIND9_MINOR_VER := 9.20
-BIND9_PATCH_VER := 27
+BIND9_PATCH_VER := 29
 BUILD_NR := 1
 BIND9_VERSION := $(BIND9_MINOR_VER).$(BIND9_PATCH_VER)
 # From https://gitlab.isc.org/isc-projects/bind9-docker/-/blob/v9.20/Dockerfile
-BIND9_CHECKSUM := 145ab7a50b33a06d9d488b5e668c887e754f42acf8954e2b5dc7e238b080e4a0
+BIND9_CHECKSUM := 587029508b3b1b43229fae416c97e5543aba45809cefaca98a5004a02a5736c1
 
 # Use podman or docker?
 ifeq ($(shell command -v podman 2> /dev/null),)
@@ -65,19 +65,21 @@ build-dev: .check-depends .download-src
 # Test the image
 .PHONY: test-dev
 test-dev:
-	@chmod 0755 testconfig
-	@chmod 0644 testconfig/*
+	@chmod -R a+rX testconfig
 	$(CONTAINER_ENGINE) run --rm -d --replace --name bind-test -e IPV4ONLY=y -v ./testconfig:/etc/bind:ro,Z $(IMGBASENAME):dev
-	$(CONTAINER_ENGINE) exec -it bind-test dig -p 5353 @127.0.0.1 -t A localhost.
-	# $(CONTAINER_ENGINE) exec -it bind-test dig -p 5353 @127.0.0.1 -t SOA localhost.
-	# $(CONTAINER_ENGINE) exec -it bind-test /usr/sbin/rndc stop
-	$(CONTAINER_ENGINE) stop bind-test
+	$(CONTAINER_ENGINE) exec -it bind-test dig -p 5353 @127.0.0.1 -t A localhost. | egrep --color=always 'QUESTION SECTION|ANSWER SECTION|'
+	$(CONTAINER_ENGINE) exec -it bind-test dig -p 5353 @127.0.0.1 -t SOA localhost. | egrep --color=always 'QUESTION SECTION|ANSWER SECTION|'
+	$(CONTAINER_ENGINE) exec -it bind-test dig -p 5353 @127.0.0.1 -t TXT _dmarc.localhost. | egrep --color=always 'QUESTION SECTION|ANSWER SECTION|'
+	$(CONTAINER_ENGINE) exec -it bind-test /usr/sbin/rndc stop
+# $(CONTAINER_ENGINE) stop bind-test
+# sleep 1 && $(CONTAINER_ENGINE) ps -a
 
 # Build image for release
 .PHONY: build
 build: .check-depends .download-src
 	$(CONTAINER_ENGINE) build --build-arg BIND9_VERSION=$(BIND9_VERSION) --build-arg IMAGE_VERSION=$(IMAGE_VERSION) --build-arg BIND9_CHECKSUM=$(BIND9_CHECKSUM) --build-arg GIT_REVISION=$(GIT_REVISION) --build-arg BUILD_DATE=$(BUILD_DATE) --build-arg BUILD_TIME=$(BUILD_TIME) -t $(IMGBASENAME):$(IMAGE_VERSION) .
 	$(CONTAINER_ENGINE) run --rm $(IMGBASENAME):$(IMAGE_VERSION) -V
+	echo "$(IMAGE_VERSION)" > .version
 
 .PHONY: tag
 tag: .check-depends
@@ -123,6 +125,7 @@ git-tag-push: .git-tag .git-push
 # Download BIND 9 source code
 .PHONY: .download-src
 .download-src:
+	@test -d downloads || mkdir downloads
 	@test -f downloads/isc-keyblock.asc || curl --output downloads/isc-keyblock.asc https://www.isc.org/docs/isc-keyblock.asc
 	@test -f downloads/bind-${BIND9_VERSION}.tar.xz.asc || curl --output downloads/bind-${BIND9_VERSION}.tar.xz.asc https://downloads.isc.org/isc/bind9/${BIND9_VERSION}/bind-${BIND9_VERSION}.tar.xz.asc
 	@test -f downloads/bind-${BIND9_VERSION}.tar.xz || curl --output downloads/bind-${BIND9_VERSION}.tar.xz https://downloads.isc.org/isc/bind9/${BIND9_VERSION}/bind-${BIND9_VERSION}.tar.xz

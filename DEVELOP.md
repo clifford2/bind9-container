@@ -2,6 +2,11 @@
 
 This image can easily be built by either `podman` or `docker`.
 
+## Update to newer version
+
+- Update variables at the top of `Makefile`
+- Compare the latest upstream `Dockerfile` to ours for any changes
+
 ## Build Development Image
 
 Build the image with podman, and run a short test:

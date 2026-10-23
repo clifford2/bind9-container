@@ -30,7 +30,7 @@ Publish new source (fix tags, commit, tag, push) with these commands:
 
 ```sh
 git commit -a
-make git-commit-push
+make git-tag-push
 ```
 
 Publish the new image to GitHub Container Registry:
